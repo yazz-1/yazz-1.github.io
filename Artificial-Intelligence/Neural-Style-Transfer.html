@@ -43,6 +43,13 @@
          section {
          margin: 20px;
          }
+         code {
+         font-family: Consolas,"courier new";
+         color: crimson;
+         background-color: #f1f1f1;
+         padding: 2px;
+         font-size: 105%;
+         }
          .project-title {
          font-size: 24px;
          font-weight: bold;
@@ -102,11 +109,11 @@
          </div>
          <img class="project-image" src="NST-avatar.png" alt="Project Image">
          <h3>Project Overview</h3>
+         <p>For this project, we will limit ourselves to using an Arbitrary Style Transfer model with images since we lack the necessary computing power to train the convolutional neural network (CNN) ourselves. In the case at hand, we will make use of the pre-trained models available in TensorFlow Hub (specifically 'magenta/arbitrary-image-stylization-v1-256'). The early layers of the CNN capture the style by detecting textures, edges, and so on, while the later layers extract the content; therefore, to maximize the effect of our model without being able to control the style and content losses weights, we will primarily use artworks from pointillism, impressionism, expressionism, and cubism</p>
+         <h3>Code</h3>
          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget ex dapibus, fringilla ipsum a, gravida velit. Vestibulum convallis urna et mi pretium, in gravida quam accumsan. Praesent malesuada consectetur mauris, sed aliquet neque efficitur id.</p>
          <h3>Challenges</h3>
-         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget ex dapibus, fringilla ipsum a, gravida velit. Vestibulum convallis urna et mi pretium, in gravida quam accumsan.</p>
-         <h3>Solution</h3>
-         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget ex dapibus, fringilla ipsum a, gravida velit. Vestibulum convallis urna et mi pretium, in gravida quam accumsan. Praesent malesuada consectetur mauris, sed aliquet neque efficitur id.</p>
+         <p>In the future, we would like to include some work on NST for text, as well as train our own CNN from scratch.</p>
          <a class="back-link" href="projects.html">Back to Projects</a>
       </section>
       <footer>
