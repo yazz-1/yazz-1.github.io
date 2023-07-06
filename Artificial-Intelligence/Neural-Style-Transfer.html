@@ -128,7 +128,7 @@
          <h3>Code</h3>
          <p>Let's import necessary libraries and module:</p>
          <pre>
-            <code>
+<code>
 import functools
 import os
 from matplotlib import gridspec
@@ -136,11 +136,11 @@ import matplotlib.pylab as plt
 import numpy as np
 import tensorflow as tf
 import tensorflow_hub as tf_hub
-            </code>
+</code>
          </pre>
          <p>Now, we define utility functions for image cropping, image loading, and visualization:</p>
          <pre>
-            <code>
+<code>
 # Define a function to crop the center of an image.
 def crop_center(img):
   """Returns a cropped square image."""
@@ -178,11 +178,11 @@ def show_n(imgs, titles=('',)):
     plt.axis('off')
     plt.title(titles[i] if len(titles) > i else '')
   plt.show()
-            </code>
+</code>
          </pre>
          <p>Afterwards, we load and preprocess example images (content and style) from provided URLs:</p>
          <pre>
-            <code>
+<code>
 # Load example images.
 content_url = 'http://localhost/content.jpeg'  # URL of the content imagecontent-img-url
 style_url = 'http://localhost/style.jpg'  # URL of the style imagestyle-img-url
@@ -197,30 +197,30 @@ style_siz3 = (256, 256)
 content_img = load_image(content_url, content_siz3)
 style_img = load_image(style_url, style_siz3)
 style_img = tf.nn.avg_pool(style_img, ksize=[3, 3], strides=[1, 1], padding='SAME')
-            </code>
+</code>
          </pre>
          <p>We load the TF Hub module for arbitrary image stylization from the specified handle and everything will be ready:</p>
          <pre>
-            <code>
+<code>
 # Load the TensorFlow Hub module for arbitrary image stylization.
 idd = 'https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2'
 mod = tf_hub.load(idd)
-            </code>
+</code>
          </pre>
          <p>At this point, we can stylize the content image with the style image using the loaded module and assign the stylized image to stylized_image variable:</p>
          <pre>
-            <code>
+<code>
 # Stylize the content image with the styleimage using the loaded TF Hub module.
 outputs =  mod(content_img, style_img)
 stylized_img = outputs[0]
-            </code>
+</code>
          </pre>
          <p>Finally, let's visualize the original content image, style image, and generated stylized image using the show_n function:</p>
          <pre>
-            <code>
+<code>
 # Visualize the input images and the generated stylized image.
 show_n([content_img, style_img, stylized_img], titles=['Original content image', 'Style image', 'Stylized image'])
-            </code>
+</code>
          </pre>
          <p>Here are some of the results I obtained. Now it's your turn! I hope you have learned something new, and that you will be able to stylize your own pictures in the style of your favorite painters. =)</p>
 
