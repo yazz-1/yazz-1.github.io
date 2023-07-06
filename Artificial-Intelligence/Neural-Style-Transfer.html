@@ -129,185 +129,184 @@
          <p>Let's import necessary libraries and module:</p>
          <pre>
             <code>
-               import functools
-               import os
-               from matplotlib import gridspec
-               import matplotlib.pylab as plt
-               import numpy as np
-               import tensorflow as tf
-               import tensorflow_hub as tf_hub
+import functools
+import os
+from matplotlib import gridspec
+import matplotlib.pylab as plt
+import numpy as np
+import tensorflow as tf
+import tensorflow_hub as tf_hub
             </code>
          </pre>
          <p>Now, we define utility functions for image cropping, image loading, and visualization:</p>
          <pre>
             <code>
-               # Define a function to crop the center of an image.
-               def crop_center(img):
-                 """Returns a cropped square image."""
-                 shap3 = img.shape
-                 new_shap3 = min(shap3[1], shap3[2])
-                 offset_y = max(shap3[1] - shap3[2], 0) // 2
-                 offset_x = max(shap3[2] - shap3[1], 0) // 2
-                 img = tf.image.crop_to_bounding_box(img, offset_y, offset_x, new_shap3, new_shap3)
-                 return img
+# Define a function to crop the center of an image.
+def crop_center(img):
+  """Returns a cropped square image."""
+  shap3 = img.shape
+  new_shap3 = min(shap3[1], shap3[2])
+  offset_y = max(shap3[1] - shap3[2], 0) // 2
+  offset_x = max(shap3[2] - shap3[1], 0) // 2
+  img = tf.image.crop_to_bounding_box(img, offset_y, offset_x, new_shap3, new_shap3)
+  return img
 
-               # Define a function to load and preprocess images.
-               @functools.lru_cache(maxsize=None)
-               def load_image(img_url, img_size=(256, 256), preserve_aspect_ratio=True):
-                 """Loads and preprocesses images."""
-                 # Cache image file locally.
-                 img_path = tf.keras.utils.get_file(os.path.basename(img_url)[-128:], img_url)
-                 # Load and convert to float32 numpy array, add batch dimension, and normalize to range [0, 1].
-                 img = tf.io.decode_image(
-                     tf.io.read_file(img_path),
-                     channels=3, dtype=tf.float32)[tf.newaxis, ...]
-                 img = crop_center(img)
-                 img = tf.image.resize(img, img_size, preserve_aspect_ratio=True)
-                 return img
-
-               # Define a function to show multiple images.
-               def show_n(imgs, titles=('',)):
-                 n = len(imgs)
-                 siz3s = [img.shape[1] for img in imgs]
-                 w = (siz3s[0] * 6) // 320
-                 plt.figure(figsize=(w * n, w))
-                 gs = gridspec.GridSpec(1, n, width_ratios=siz3s)
-                 for i in range(n):
-                   plt.subplot(gs[i])
-                   plt.imshow(imgs[i][0], aspect='equal')
-                   plt.axis('off')
-                   plt.title(titles[i] if len(titles) > i else '')
-                 plt.show()
+# Define a function to show multiple images.
+def show_n(imgs, titles=('',)):
+  n = len(imgs)
+  siz3s = [img.shape[1] for img in imgs]
+  w = (siz3s[0] * 6) // 320
+  plt.figure(figsize=(w * n, w))
+  gs = gridspec.GridSpec(1, n, width_ratios=siz3s)
+  for i in range(n):
+    plt.subplot(gs[i])
+    plt.imshow(imgs[i][0], aspect='equal')
+    plt.axis('off')
+    plt.title(titles[i] if len(titles) > i else '')
+  plt.show()
+  
+# Define a function to show multiple images.
+def show_n(imgs, titles=('',)):
+  n = len(imgs)
+  siz3s = [img.shape[1] for img in imgs]
+  w = (siz3s[0] * 6) // 320
+  plt.figure(figsize=(w * n, w))
+  gs = gridspec.GridSpec(1, n, width_ratios=siz3s)
+  for i in range(n):
+    plt.subplot(gs[i])
+    plt.imshow(imgs[i][0], aspect='equal')
+    plt.axis('off')
+    plt.title(titles[i] if len(titles) > i else '')
+  plt.show()
             </code>
          </pre>
          <p>Afterwards, we load and preprocess example images (content and style) from provided URLs:</p>
          <pre>
             <code>
-               # Load example images.
+# Load example images.
+content_url = 'http://localhost/content.jpeg'  # URL of the content imagecontent-img-url
+style_url = 'http://localhost/style.jpg'  # URL of the style imagestyle-img-url
+output_siz3 = 384  # Output image size
 
-               content_url = 'http://localhost/content.jpeg'  # URL of the content imagecontent-img-url
-               style_url = 'http://localhost/style.jpg'  # URL of the style imagestyle-img-url
-               output_siz3 = 384  # Output image size
+# The content image size can be arbitrary.
+content_siz3 = (output_siz3, output_siz3)
+# The style prediction model was trained with image size 256, which is recommended for the style image.
+style_siz3 = (256, 256)
 
-               # The content image size can be arbitrary.
-               content_siz3 = (output_siz3, output_siz3)
-               # The style prediction model was trained with image size 256, which is recommended for the style image.
-               style_siz3 = (256, 256)
-
-               # Load the content and style images.
-               content_img = load_image(content_url, content_siz3)
-               style_img = load_image(style_url, style_siz3)
-               style_img = tf.nn.avg_pool(style_img, ksize=[3, 3], strides=[1, 1], padding='SAME')
+# Load the content and style images.
+content_img = load_image(content_url, content_siz3)
+style_img = load_image(style_url, style_siz3)
+style_img = tf.nn.avg_pool(style_img, ksize=[3, 3], strides=[1, 1], padding='SAME')
             </code>
          </pre>
          <p>We load the TF Hub module for arbitrary image stylization from the specified handle and everything will be ready:</p>
          <pre>
             <code>
-               # Load the TensorFlow Hub module for arbitrary image stylization.
-               idd = 'https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2'
-               mod = tf_hub.load(idd)
+# Load the TensorFlow Hub module for arbitrary image stylization.
+idd = 'https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2'
+mod = tf_hub.load(idd)
             </code>
          </pre>
          <p>At this point, we can stylize the content image with the style image using the loaded module and assign the stylized image to stylized_image variable:</p>
          <pre>
             <code>
-               # Stylize the content image with the styleimage using the loaded TF Hub module.
-               outputs =  mod(content_img, style_img)
-               stylized_img = outputs[0]
+# Stylize the content image with the styleimage using the loaded TF Hub module.
+outputs =  mod(content_img, style_img)
+stylized_img = outputs[0]
             </code>
          </pre>
          <p>Finally, let's visualize the original content image, style image, and generated stylized image using the show_n function:</p>
          <pre>
             <code>
-               # Visualize the input images and the generated stylized image.
-               show_n([content_img, style_img, stylized_img], titles=['Original content image', 'Style image', 'Stylized image'])
+# Visualize the input images and the generated stylized image.
+show_n([content_img, style_img, stylized_img], titles=['Original content image', 'Style image', 'Stylized image'])
             </code>
          </pre>
          <p>Here are some of the results I obtained. Now it's your turn! I hope you have learned something new, and that you will be able to stylize your own pictures in the style of your favorite painters. =)</p>
 
    <div class="fila">
       <div class="columna">
-         <a href="/img/Figure01.png"><img src="/img/Figure01.png">
+         <a href="/img/Figure01.png"><img src="/img/Figure01.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure02.png"><img src="/img/Figure02.png">
+         <a href="/img/Figure02.png"><img src="/img/Figure02.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure03.png"><img src="/img/Figure03.png">
+         <a href="/img/Figure03.png"><img src="/img/Figure03.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure04.png"><img src="/img/Figure04.png">
+         <a href="/img/Figure04.png"><img src="/img/Figure04.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure05.png"><img src="/img/Figure05.png">
-      </div>
-   </div>
-   <div class="fila">
-      <div class="columna">
-         <a href="/img/Figure06.png"><img src="/img/Figure06.png">
-      </div>
-      <div class="columna">
-         <a href="/img/Figure07.png"><img src="/img/Figure07.png">
-      </div>
-      <div class="columna">
-         <a href="/img/Figure08.png"><img src="/img/Figure08.png">
-      </div>
-      <div class="columna">
-         <a href="/img/Figure09.png"><img src="/img/Figure09.png">
-      </div>
-      <div class="columna">
-         <a href="/img/Figure10.png"><img src="/img/Figure10.png">
+         <a href="/img/Figure05.png"><img src="/img/Figure05.png"></a>
       </div>
    </div>
    <div class="fila">
       <div class="columna">
-         <a href="/img/Figure11.png"><img src="/img/Figure11.png">
+         <a href="/img/Figure06.png"><img src="/img/Figure06.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure12.png"><img src="/img/Figure12.png">
+         <a href="/img/Figure07.png"><img src="/img/Figure07.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure13.png"><img src="/img/Figure13.png">
+         <a href="/img/Figure08.png"><img src="/img/Figure08.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure14.png"><img src="/img/Figure14.png">
+         <a href="/img/Figure09.png"><img src="/img/Figure09.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure15.png"><img src="/img/Figure15.png">
-      </div>
-   </div>
-   <div class="fila">
-      <div class="columna">
-         <a href="/img/Figure16.png"><img src="/img/Figure16.png">
-      </div>
-      <div class="columna">
-         <a href="/img/Figure17.png"><img src="/img/Figure17.png">
-      </div>
-      <div class="columna">
-         <a href="/img/Figure18.png"><img src="/img/Figure18.png">
-      </div>
-      <div class="columna">
-         <a href="/img/Figure19.png"><img src="/img/Figure19.png">
-      </div>
-      <div class="columna">
-         <a href="/img/Figure20.png"><img src="/img/Figure20.png">
+         <a href="/img/Figure10.png"><img src="/img/Figure10.png"></a>
       </div>
    </div>
    <div class="fila">
       <div class="columna">
-         <a href="/img/Figure21.png"><img src="/img/Figure21.png">
+         <a href="/img/Figure11.png"><img src="/img/Figure11.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure22.png"><img src="/img/Figure22.png">
+         <a href="/img/Figure12.png"><img src="/img/Figure12.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure23.png"><img src="/img/Figure23.png">
+         <a href="/img/Figure13.png"><img src="/img/Figure13.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure24.png"><img src="/img/Figure24.png">
+         <a href="/img/Figure14.png"><img src="/img/Figure14.png"></a>
       </div>
       <div class="columna">
-         <a href="/img/Figure25.png"><img src="/img/Figure25.png">
+         <a href="/img/Figure15.png"><img src="/img/Figure15.png"></a>
+      </div>
+   </div>
+   <div class="fila">
+      <div class="columna">
+         <a href="/img/Figure16.png"><img src="/img/Figure16.png"></a>
+      </div>
+      <div class="columna">
+         <a href="/img/Figure17.png"><img src="/img/Figure17.png"></a>
+      </div>
+      <div class="columna">
+         <a href="/img/Figure18.png"><img src="/img/Figure18.png"></a>
+      </div>
+      <div class="columna">
+         <a href="/img/Figure19.png"><img src="/img/Figure19.png"></a>
+      </div>
+      <div class="columna">
+         <a href="/img/Figure20.png"><img src="/img/Figure20.png"></a>
+      </div>
+   </div>
+   <div class="fila">
+      <div class="columna">
+         <a href="/img/Figure21.png"><img src="/img/Figure21.png"></a>
+      </div>
+      <div class="columna">
+         <a href="/img/Figure22.png"><img src="/img/Figure22.png"></a>
+      </div>
+      <div class="columna">
+         <a href="/img/Figure23.png"><img src="/img/Figure23.png"></a>
+      </div>
+      <div class="columna">
+         <a href="/img/Figure24.png"><img src="/img/Figure24.png"></a>
+      </div>
+      <div class="columna">
+         <a href="/img/Figure25.png"><img src="/img/Figure25.png"></a>
       </div>
    </div>
          <h3>Next goals</h3>
